@@ -7,6 +7,4 @@ if __name__ == "__main__":
 
     while True:
 
-        if tt.listen() > 0.01:
-
             print tt.listen()

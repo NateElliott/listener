@@ -3,8 +3,9 @@
 import pyaudio
 import struct
 import math
+import time
 
-INITIAL_TAP_THRESHOLD = 0.035
+INITIAL_TAP_THRESHOLD = 0.02
 FORMAT = pyaudio.paInt16
 SHORT_NORMALIZE = (1.0/32768.0)
 CHANNELS = 2
@@ -63,24 +64,22 @@ class Average(object):
 
     def find_input_device(self):
         device_index = None
-        for i in range( self.pa.get_device_count() ):
+        for i in range(self.pa.get_device_count()):
             devinfo = self.pa.get_device_info_by_index(i)
             # print( "Device %d: %s"%(i,devinfo["name"]) )
 
-            for keyword in ["mic","input"]:
+            for keyword in ["mic", "input"]:
                 if keyword in devinfo["name"].lower():
                     # print( "Found an input: device %d - %s"%(i,devinfo["name"]) )
                     device_index = i
                     return device_index
 
-        if device_index == None:
-            print( "No preferred input found; using default input device." )
+        if not device_index:
+            print("No preferred input found; using default input device.")
 
         return device_index
 
-
-
-    def open_mic_stream( self ):
+    def open_mic_stream(self):
         device_index = self.find_input_device()
 
         stream = self.pa.open(format = FORMAT,
@@ -91,7 +90,6 @@ class Average(object):
                               frames_per_buffer = INPUT_FRAMES_PER_BLOCK)
 
         return stream
-
 
     def listen(self):
 
@@ -109,20 +107,26 @@ class Average(object):
         if amplitude > self.tap_threshold:
             # noisy block
 
-            print "{}".format(amplitude)
+            current_time = int(round(time.time()*1000))
 
-            """
+
+            stack = "{},{}".format(current_time, amplitude)
+
+            return stack
+
+
+
             self.quietcount = 0
             self.noisycount += 1
             if self.noisycount > OVERSENSITIVE:
                 # turn down the sensitivity
                 self.tap_threshold *= 1.1
-            """
+
         else:
             # quiet block.
 
 
-            """
+
             if 1 <= self.noisycount <= MAX_TAP_BLOCKS:
                 return "ads"
             self.noisycount = 0
@@ -130,5 +134,4 @@ class Average(object):
             if self.quietcount > UNDERSENSITIVE:
                 # turn up the sensitivity
                 self.tap_threshold *= 0.9
-            """
 
