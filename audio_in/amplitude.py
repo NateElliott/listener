@@ -3,7 +3,6 @@
 import pyaudio
 import struct
 import math
-import time
 
 INITIAL_TAP_THRESHOLD = 0.02
 FORMAT = pyaudio.paInt16
@@ -106,13 +105,10 @@ class Average(object):
 
         if amplitude > self.tap_threshold:
             # noisy block
+            # current_time = int(round(time.time()*1000))
+            # stack = "{},{}".format(current_time, amplitude)
 
-            current_time = int(round(time.time()*1000))
-
-
-            stack = "{},{}".format(current_time, amplitude)
-
-            return stack
+            return amplitude
 
 
 
